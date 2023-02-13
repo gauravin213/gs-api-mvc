@@ -1,12 +1,9 @@
 <?php
 namespace App\Middleware;
 class BasicAuth{
-	function __construct(){
-		//echo "<pre>-->"; print_r($_SERVER); echo "</pre>"; die;
-	}
-	public function handle($router, $next)
+	function __construct(){}
+	public static function handle($router, $next)
 	{	
-
 		if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
 			return;
 		}

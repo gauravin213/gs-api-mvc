@@ -3,25 +3,27 @@ namespace App;
 use mysqli;
 class Database
 {
-	function __construct()
-	{
-		//getenv(), $_ENV[], $_SERVER[]
-		$this->servername = getenv('DB_HOST');
-		$this->username = getenv('DB_USERNAME');
-		$this->password = getenv('DB_PASSWORD');
-		$this->dbname = getenv('DB_DATABASE'); 
-		$this->prefix = getenv('DB_PREFIX');
-	}
+	private static $servername;
+	private static $username;
+	private static $password;
+	private static $dbname;
+	private static $prefix;
 
-	public function conn(){
-		$conn = new mysqli($this->servername, $this->username, $this->password, $this->dbname);
+	public static function conn(){
+		//getenv(), $_ENV[], $_SERVER[]
+		self::$servername = getenv('DB_HOST');
+		self::$username = getenv('DB_USERNAME');
+		self::$password = getenv('DB_PASSWORD');
+		self::$dbname = getenv('DB_DATABASE'); 
+		self::$prefix = getenv('DB_PREFIX');
+		$conn = new mysqli(self::$servername, self::$username, self::$password, self::$dbname);
 		if ($conn->connect_error) {
 		  die("Connection failed: " . $conn->connect_error);
 		}
 		return $conn;
 	}
 
-	public function insert($data_array, $tb_name){
+	public static function insert($data_array, $tb_name){
 		$conn = self::conn();
 		$last_insert_id = 0;
 		if (count($data_array)!=0) {
@@ -39,7 +41,7 @@ class Database
 		return $last_insert_id;
 	}
 
-	public function update($data_array, $tb_name, $where_arr){
+	public static function update($data_array, $tb_name, $where_arr){
 		$result = [];
 		$conn = self::conn();
 		if (count($data_array)!=0) {
@@ -67,7 +69,7 @@ class Database
 		return $result;
 	}
 
-	public function select($query){
+	public static function select($query){
 		$response = [];
 		$conn = self::conn();
 		$result = $conn->query($query);
@@ -80,7 +82,7 @@ class Database
 		return $response;
 	}
 
-	public function delete($tb_name, $where_arr){
+	public static function delete($tb_name, $where_arr){
 		$result = [];
 		$conn = self::conn();
 		foreach ($where_arr as $key => $value) {
@@ -92,21 +94,19 @@ class Database
 	}
 }
 
-//$db = new Database();
-//$res = $db->insert(['fname' => 'Test', 'lanme' => 'Tster'], 'users');
+//$res = Database::insert(['fname' => 'Test', 'lanme' => 'Tster'], 'users');
 //echo "<pre>"; print_r($res); echo "</pre>";
 
-/*$res = $db->update(['fname' => 'Test22', 'lanme' => 'Tster'], 'users', ['id' => '1']);
+/*$res = Database::update(['fname' => 'Test22', 'lanme' => 'Tster'], 'users', ['id' => '1']);
 echo "<pre>"; print_r($res); echo "</pre>";*/
 
-/*$res = $db->select('SELECT * FROM users');
+/*$res = Database::select('SELECT * FROM users');
 echo "<pre>"; print_r($res); echo "</pre>";*/
 
-/*$res = $db->delete('users', ['id' => '1']);
+/*$res = Database::delete('users', ['id' => '1']);
 echo "<pre>"; print_r($res); echo "</pre>";*/
 
 /*$prefix = getenv('DB_PREFIX');
-$db = new Database;
-$res = $db->select("SELECT * FROM {$prefix}posts limit 5");
+$res = Database::select("SELECT * FROM {$prefix}posts limit 5");
 echo "<pre>"; print_r($res); echo "</pre>";
 die;*/

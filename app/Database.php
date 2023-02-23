@@ -11,11 +11,11 @@ class Database
 
 	public static function conn(){
 		//getenv(), $_ENV[], $_SERVER[]
-		self::$servername = getenv('DB_HOST');
-		self::$username = getenv('DB_USERNAME');
-		self::$password = getenv('DB_PASSWORD');
-		self::$dbname = getenv('DB_DATABASE'); 
-		self::$prefix = getenv('DB_PREFIX');
+		self::$servername 	= getenv('DB_HOST');
+		self::$username 	= getenv('DB_USERNAME');
+		self::$password 	= getenv('DB_PASSWORD');
+		self::$dbname 		= getenv('DB_DATABASE'); 
+		self::$prefix 		= getenv('DB_PREFIX');
 		$conn = new mysqli(self::$servername, self::$username, self::$password, self::$dbname);
 		if ($conn->connect_error) {
 		  die("Connection failed: " . $conn->connect_error);
@@ -23,7 +23,11 @@ class Database
 		return $conn;
 	}
 
-	public static function insert($data_array, $tb_name){
+	public static function prefix(){
+		return getenv('DB_PREFIX');
+	}
+
+	public static function insert($tb_name, $data_array){
 		$conn = self::conn();
 		$last_insert_id = 0;
 		if (count($data_array)!=0) {
@@ -41,30 +45,12 @@ class Database
 		return $last_insert_id;
 	}
 
-	public static function update($data_array, $tb_name, $where_arr){
+	public static function update($tb_name, $data_array, $where_arr){
+		$data_array = self::implode_key_value(", ", $data_array, " = ");
 		$result = [];
 		$conn = self::conn();
-		if (count($data_array)!=0) {
-			$columns = array_keys($data_array);
-			$values = array_values($data_array);
-			$c = implode(", ", $columns);
-			$v = "'".implode("', '", $values)."'";
-			$count = count($data_array) - 1;
-			$c = 0;
-			$sub_q = "";
-			foreach ($data_array as $key => $value) {
-				if ($count == $c) {
-					$sub_q .= "{$key}='{$value}'";
-				}else{
-					$sub_q .= "{$key}='{$value}', ";
-				}
-				$c++;
-			}
-			foreach ($where_arr as $key => $value) {
-				$q = "UPDATE {$tb_name} SET {$sub_q} WHERE {$key}={$value}"; 
-				$result = $conn->query($q);
-			}
-		}
+		$q = "UPDATE {$tb_name} SET {$data_array} WHERE {$where_arr}"; 
+		$result = $conn->query($q);
 		$conn->close();
 		return $result;
 	}
@@ -85,28 +71,48 @@ class Database
 	public static function delete($tb_name, $where_arr){
 		$result = [];
 		$conn = self::conn();
-		foreach ($where_arr as $key => $value) {
-			$q = "DELETE FROM {$tb_name} WHERE {$key}={$value}";
-			$result = $conn->query($q);
-		}
+		$q = "DELETE FROM {$tb_name} WHERE {$where_arr}";
+		$result = $conn->query($q);
 		$conn->close();
 		return $result;
 	}
+
+	public static function implode_key_value($separator, $array, $symbol = "=") {
+	    return implode(
+	        $separator,
+	        array_map(
+	            function ($k, $v) use ($symbol) {
+	                return $k . $symbol . "'".$v."'";
+	            },
+	            array_keys($array),
+	            array_values($array)
+	        )
+	    );
+	}
 }
 
-//$res = Database::insert(['fname' => 'Test', 'lanme' => 'Tster'], 'users');
-//echo "<pre>"; print_r($res); echo "</pre>";
+/*
 
-/*$res = Database::update(['fname' => 'Test22', 'lanme' => 'Tster'], 'users', ['id' => '1']);
-echo "<pre>"; print_r($res); echo "</pre>";*/
-
-/*$res = Database::select('SELECT * FROM users');
-echo "<pre>"; print_r($res); echo "</pre>";*/
-
-/*$res = Database::delete('users', ['id' => '1']);
-echo "<pre>"; print_r($res); echo "</pre>";*/
-
-/*$prefix = getenv('DB_PREFIX');
-$res = Database::select("SELECT * FROM {$prefix}posts limit 5");
+$res = DB::insert("wp_postmeta", ['post_id' => '1367', 'meta_key' => '_payment_method', 'meta_value' => 'cod']);
 echo "<pre>"; print_r($res); echo "</pre>";
-die;*/
+
+$res = DB::update(
+	'wp_postmeta', 
+	[
+		'meta_value' => '222222'
+	], 
+	" post_id='1367' AND meta_key='_payment_method' "
+);
+echo "<pre>"; print_r($res); echo "</pre>";
+
+$res = DB::delete(
+	'wp_postmeta', 
+	" post_id='1367' AND meta_key='_payment_method' "
+);
+echo "<pre>"; print_r($res); echo "</pre>";
+
+$prefix = DB::prefix();
+$res = DB::select("SELECT * FROM {$prefix}posts limit 5");
+echo "<pre>"; print_r($res); echo "</pre>";
+
+*/

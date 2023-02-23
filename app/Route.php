@@ -1,13 +1,14 @@
 <?php
 
 namespace App;
-
+use App\Request;
 class Route
 {	
 	private static $handlers;
 	private static $notFoundHandler;
 	private const METHOD_POST = 'POST';
 	private const METHOD_GET = 'GET';
+	private static $pre = '';
 
 	public static function get( string $path, $handler): void
 	{
@@ -19,10 +20,18 @@ class Route
 		self::addHandler(self::METHOD_POST, $path, $handler);
 	}
 
-	public static function addHandler(string $method, string $path, $handler): void
+	public static function group($prefix, $handler): void
 	{
-		self::$handlers[$method.$path] = [
-			'path' => $path,
+		$pre = self::$pre;
+		self::$pre = $pre.$prefix;
+		$handler();
+		self::$pre = $pre;
+	}
+
+	public static function addHandler(string $method, string $path, $handler): void
+	{	
+		self::$handlers[$method.self::$pre.$path] = [
+			'path' => self::$pre.$path,
 			'method' => $method,
 			'handler' => $handler
 		];
@@ -45,14 +54,12 @@ class Route
 			$handler = self::$handlers[$method.$path];
 			if ($handler['path'] == $path && $handler['method'] == $method ) {
 				$callback = $handler['handler'];
-			}
-		}
-		if (!$callback) {
-			header('HTTP/1.0 404 Not Found');
-			if (!empty(self::$notFoundHandler)) {
+			}else{
 				$callback = self::$notFoundHandler;
 			}
+		}else{
+			$callback = self::$notFoundHandler;
 		}
-		call_user_func_array($callback, [array_merge($_GET, $_POST)]);
+		call_user_func_array( $callback, [Request::all()] );
 	}
 }

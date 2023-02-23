@@ -1,0 +1,65 @@
+/*
+POST: https://new.prosourcediesel.com/gs-api-mvc/api/ga/purchase
+{
+    "ti": 236766,
+    "ta": "Prosourcediesel online store",
+    "tr": "99.00",
+    "tt": "0",
+    "ts": null,
+    "pa": "purchase",
+    "pr1id": 217616,
+    "pr1nm": "12mm Main Bolt Set For 1998.5-2018 5.9L 6.7L Dodge Cummins 24V",
+    "pr1pr": 99,
+    "pr1qt": 1
+}
+
+POST: https://new.prosourcediesel.com/gs-api-mvc/api/ga4/purchase
+{
+    "event": "purchase",
+    "client_id": "",
+    "params": {
+        "debug_mode": true,
+        "transaction_id": "236766",
+        "affiliation": "Prosourcediesel online store",
+        "value": 99,
+        "currency": "USD",
+        "tax": 0,
+        "shipping": "0",
+        "coupon": "",
+        "items": [
+            {
+                "item_id": "217616",
+                "item_name": "12mm Main Bolt Set For 1998.5-2018 5.9L 6.7L Dodge Cummins 24V",
+                "currency": "USD",
+                "item_brand": "prosourcediesel",
+                "item_category": "Differentials",
+                "price": 99,
+                "quantity": 1
+            }
+        ]
+    }
+}
+
+POST: http://127.0.0.1/array/gs-api-mvc/api/postmeta/add
+{
+    "post_id": "10",
+    "meta_key": "_ga_tracked_ua_custom",
+    "meta_value": "1"
+}
+
+{
+    "post_id": "10",
+    "meta_key": "_ga_tracked_ga4_custom",
+    "meta_value": "1"
+}
+
+{
+    "post_id": "10",
+    "meta_key": "_tracked_by",
+    "meta_value": {
+        "order_id": "10",
+        "tracked_by": "server",
+        "case": "1"
+    }
+}
+*/

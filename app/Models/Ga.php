@@ -2,12 +2,12 @@
 
 namespace App\Models;
 use App\Database;
-class Product
+class Ga
 {
 	function __construct(){}
 
-	public static function get_tb_data(){
-		return 'xyz';
+	public static function test(){
+		return 'Ga model';
 	}
 }
 
